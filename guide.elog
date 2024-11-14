@@ -1,0 +1,6 @@
+let x : Integers.
+x := 2.
+
+x := x if c, y if k, else z with ((k) /= c).
+
+f(x) := 2 * x

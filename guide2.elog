@@ -1,0 +1,28 @@
+let n : Integer.
+n := v.
+
+r := x if c,
+     y if k,
+     else z.
+
+a := v if x = y,
+       else w.
+
+[~ Some comment with let, forsome and other keywords that may trigger the ReGeX ~]
+
+f(x) := x / 2 with x = k * 2 [~mid-line comment~] forsome k in Integer. [~ Other comment \~ ~]
+
+
+`Positive Integers` := Integers & Positives.
+
+let pi : Reals.
+pi := 3.141592.
+
+let x : `Positive Integers`.
+
+let x : x mod 2 = 0.
+
+`My Text` := 'Hello, world!'.
+
+`Does doesn't let` 'else if xor make anything\' not the end of str, btw'
+`this -> \` doesn't end id, btw`

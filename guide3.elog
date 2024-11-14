@@ -1,0 +1,50 @@
+T := {n | n mod 3 = 0, i in Integers}.
+
+let n in T.
+n := 9.
+
+let f(x) in Integers forall x in integers.
+f(x) := x/3 with x in T.
+
+
+let f(x) in Integers forall x in Integers.
+f(x) := x/3 with x = k*3 forall k in Integers.
+
+let fib(n) in Integers.
+
+fib(0) := 0
+fib(1) := 1
+fib(n) := fib(n-1) + fib(n-2) with n in Integers & Positives.
+fib(n) := 0 with n not in Integers & Positives.
+
+fib(n) += n if n <= 1,
+          else fib(n-1) + fib(n-2)
+          with n in Integers & Positives.
+
+Matrix := [1 2 3,
+           6 2 8,
+           2 5 2].
+
+f(x) := 2*x.
+
+f(Matrix) = [2  4  6 ,
+             12 4  16,
+             4  10 4 ] istrue.
+
+Point := class { variable x, y; z := 2*x + y }.
+
+somep := Point { 3, 5 }.
+somep = Point { y := 5, x := 3 } istrue.
+
+somep_z = 11 istrue.
+
+let pi in Reals, pi constant := 3.1415.
+
+let AoC(r) in Integer forall r in Reals.
+AoC(r) := pi * r^2.
+
+[~ comment ~]
+
+[~ Bool operators: and, or, equals, xor, not ~]
+[~ Bitwise operators: band, bor, bequals, bxor, bnot, b2left, b2right ~]
+
