@@ -72,26 +72,37 @@ class elog_parser:
 
                 l.add(self.p_expr0())
 
-            else: break
+            else: return l
  
-        return l
 
-
-    def p_mat(self) -> elog_nodes.node:
+    def p_matl(self) -> elog_nodes.node:
 
         l = elog_nodes.setof(self.p_val())
         
         while True:
 
-            if self.tkns[self.idx][0] == 'SBE': break
+            if self.tkns[self.idx][0] in ['SBE', 'COMMA']: return l
 
             self.idx += 1
 
             l.add(self.p_val())
  
-        return l
-
     
+    def p_mat(self) -> elog_nodes.node:
+
+        l = elog_nodes.setof(self.p_matl())
+        
+        while True:
+
+            if self.tkns[self.idx][0] == 'COMMA':
+
+                self.idx += 1
+
+                l.add(self.p_matl())
+
+            else: return l
+ 
+
     def p_set(self) -> elog_nodes.node:
 
         l = elog_nodes.setof(self.p_val())
@@ -104,10 +115,8 @@ class elog_parser:
 
                 l.add(self.p_stc())
 
-            else: break
+            else: return l
  
-        return l
-
 
     def p_val(self) -> elog_nodes.node:
 
@@ -149,6 +158,10 @@ class elog_parser:
 
             return l
 
+        
+        elif self.tkns[self.idx][0] == 'REF':
+
+            return elog_nodes.unop('REF', self.p_val())
 
 
         elif self.tkns[self.idx][0] in ['NUM', 'FNUM', 'TEXT', 'ID']:
@@ -157,21 +170,32 @@ class elog_parser:
 
             self.idx += 1
 
-            if self.tkns[self.idx][0] == 'PBB':
+
+            if self.tkns[self.idx][0] == 'UNDERL':
 
                 self.idx += 1
 
-                l = self.p_csv()
+                v = elog_nodes.binop(v, 'SSCR', self.p_csv())
 
-                if self.tkns[self.idx][0] != 'PBE': self.gowrong()
-
-                self.idx += 1
-
-                return elog_nodes.binop(v, 'FUNC', l)
-    
             else:
 
-                return v
+                while True:
+
+                    if self.tkns[self.idx][0] == 'PBB':
+
+                        self.idx += 1
+
+                        l = self.p_val()
+
+                        if self.tkns[self.idx][0] != 'PBE': self.gowrong()
+
+                        self.idx += 1
+
+                        v = elog_nodes.binop(v, 'FUNC', l)
+
+
+                    else: return v
+        
 
         else: self.gowrong()
 
@@ -238,34 +262,48 @@ class elog_parser:
 
     def p_stc(self) -> elog_nodes.node:
 
-        l = self.p_expr0()
+        if self.tkns[self.idx][0] == 'LBD':
 
+            self.idx += 1
 
-        while True:
+            l = self.p_val()
 
-            if self.tkns[self.idx][0] == 'IF':
-                
-                self.idx += 1
-                
-                s = self.p_expr0()
+            if self.tkns[self.idx][0] != 'DDOT': self.gowrong()
 
-                if self.tkns[self.idx][0] != 'COMMA': self.gowrong()
+            self.idx += 1
 
-                self.idx += 1
+            l = elog_nodes.binop(l, 'LBD', self.p_stc())
 
+        
+        else:
+            
+            l = self.p_expr0()
 
-                if self.tkns[self.idx][0] == 'ELSE':
+            while True:
+
+                if self.tkns[self.idx][0] == 'IF':
+                    
+                    self.idx += 1
+                    
+                    s = self.p_expr0()
+
+                    if self.tkns[self.idx][0] != 'COMMA': self.gowrong()
 
                     self.idx += 1
 
-                    l = elog_nodes.triop('IF', l, s, self.p_expr0())
 
-                else:
+                    if self.tkns[self.idx][0] == 'ELSE':
 
-                    l = elog_nodes.triop('IF', l, s, self.p_stc())
+                        self.idx += 1
+
+                        l = elog_nodes.triop('IF', l, s, self.p_expr0())
+
+                    else:
+
+                        l = elog_nodes.triop('IF', l, s, self.p_stc())
 
 
-            else: break
+                else: break
 
         
         return l
@@ -280,12 +318,22 @@ class elog_parser:
             l = self.p_val()
 
             
-            if self.tkns[self.idx][0] == 'DDOT':
+            if self.tkns[self.idx][0] == 'IN':
 
                 self.idx += 1
             
                 l = elog_nodes.binop(l, 'LETIN', self.p_stc())
+
+
+            elif self.tkns[self.idx][0] == 'AS':
+
+                self.idx += 1
             
+                l = elog_nodes.binop(l, 'LETAS', self.p_stc())
+
+            
+            else: self.gowrong()
+
 
         else:
 
@@ -299,7 +347,7 @@ class elog_parser:
                 l = elog_nodes.binop(l, 'DEF', self.p_stc())
 
 
-            else: l = self.p_csv()
+            else: l = elog_nodes.unop('RETURN', l)
 
 
         if self.tkns[self.idx][0] == 'WITH': 
@@ -314,19 +362,18 @@ class elog_parser:
 
     def parse(self) -> list[elog_nodes.node]:
 
-        l = self.parsel()
-        
-        while self.tkns[self.idx][0] == 'PERIOD':
+        while self.idx < len(self.tkns):
+
+            if self.tkns[self.idx][0] == 'EOSCR': break
+
+            l = self.parsel()
 
             self.r.append(l)
 
-            self.idx += 1
-            
-            l = self.parsel()
+            if self.tkns[self.idx][0] in ['PERIOD', 'EOSCR']: self.idx += 1
 
-        if self.tkns[self.idx][0] != 'EOSCR': self.gowrong()
-
-        self.r.append(l)
+            else: self.gowrong()
 
         return self.r
+
 
