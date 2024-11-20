@@ -6,17 +6,26 @@
 
 <br><br>
 
+<table>
+<tr>
+<td>
+
 <h2 align="center">Using:</h3>
 <p align="center">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" width="32" heigth="32"/>
 </p>
 
-<br><br>
+</td>
+<td>
 
 <h2 align="center">Planned using:</h3>
 <p align="center">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rust/rust-original.svg" alt="Rust" width="32" heigth="32"/>
 </p>
+
+</td>
+</tr>
+</table>
 
 <br><br>
 
