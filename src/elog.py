@@ -33,7 +33,7 @@ class eidoslogos(object):
 
                 idx += 1
 
-                code = open(argv[idx], 'r').read()
+                with open(argv[idx], 'r') as tmp: code = tmp.read()
 
 
             elif argv[idx] == 'init_tokenizer':
