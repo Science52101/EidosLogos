@@ -161,7 +161,13 @@ class elog_parser:
         
         elif self.tkns[self.idx][0] == 'REF':
 
-            return elog_nodes.unop('REF', self.p_val())
+            self.idx += 1
+
+            l = elog_nodes.unop('REF', self.p_val())
+
+            self.idx += 1
+            
+            return l
 
 
         elif self.tkns[self.idx][0] in ['NUM', 'FNUM', 'TEXT', 'ID']:
@@ -195,6 +201,15 @@ class elog_parser:
 
 
                     else: return v
+
+
+        elif self.tkns[self.idx][0] in ['TRUE', 'FALSE']:
+
+            l = elog_nodes.val('BOOL', self.tkns[self.idx][0])
+
+            self.idx += 1
+
+            return l
         
 
         else: self.gowrong()
@@ -248,7 +263,7 @@ class elog_parser:
         while True:
 
 
-            if self.tkns[self.idx][0] in ['EQ', 'NEQ', 'AND', 'OR', 'XOR', 'IN']:
+            if self.tkns[self.idx][0] in ['EQ', 'NEQ', 'GRT', 'LSS', 'GRTEQ', 'LSSEQ', 'AND', 'OR', 'XOR', 'IN']:
 
                 self.idx += 1
 

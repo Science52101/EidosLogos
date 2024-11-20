@@ -6,7 +6,7 @@
 
 <br><br>
 
-<table>
+<table align="center">
 <tr>
 <td>
 
@@ -36,6 +36,48 @@ This is an experimental programming language test for future script making with 
 Any contribuitions or suggestions from unknown/anonymous people aren't accepted for this project.
 
 If the project branches out into different distribuitions, the community will be able to participate in the project's aim and directly in specific distribuitions.
+
+<br><br>
+
+<h2 align="center">Design preview</h3>
+
+Here are some designed scripts that will work eventually:
+
+```
+let v in Integers. [~ v is an integer ~]
+
+v := 0. [~ v is now 0 ~]
+
+v := 1. [~ v is now 1 ~]
+
+
+let `Is v zero?` in Booleans. [~ `Is v zero?` is a boolean ~]
+
+`Is v zero?` := true if v = 0, [~ `Is v zero` is true if v = 0 ~]
+                else false.    [~ `Is v zero is false if v /= 0` ~]
+```
+
+```
+let v in Integers. [~ v is an integer ~]
+
+v := [~ Put some value in v ~].
+
+let w in Integers. [~ w is an integer ~]
+
+w := 0 if v < 0,
+     1 if (v >= 0) and (v < 5),
+     2 if (v >= 5) and (v < 10),
+     else 3.
+[~ w is 0 is v < 0, 1 if 0 <= v < 5, 2 if 5 <= v < 10 and 3 is v > 0 ~]
+```
+
+```
+let ispair in Functions. [~ ispair is a function ~]
+
+ispair(x) := x mod 2 = 0.
+[~ is the same as ~]
+ispair := lbd x : x mod 2 = 0.
+```
 
 <br><br>
 
