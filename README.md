@@ -1,5 +1,5 @@
 <h1 align="Center">
-<img src="https://raw.githubusercontent.com/Science52101/EidosLogos/All/ars/img/elog_logo.png" alt="ε Log" width="128" heigth="128"/><br>
+<img src="https://raw.githubusercontent.com/Science52101/EidosLogos/refs/heads/main/ars/img/elog_logo.png" alt="ε Log" width="128" heigth="128"/><br>
 ε Log
 </h1>
 <h3 align="center">(Eidos Logos)</h3>
