@@ -1,47 +1,6 @@
 from functools import reduce
 
-class elog_nodes:
-
-    class node: pass
-
-    class val(node):
-        def __init__(self, t, v):
-            self.t = t
-            self.v = v
-        def __repr__(self) -> str:
-            return f'( {self.t} {self.v} )'
-
-    class unop(node):
-        def __init__(self, o, v):
-            self.o = o
-            self.v = v
-        def __repr__(self) -> str:
-            return f'[ {self.o} {self.v} ]'
-
-    class binop(node):
-        def __init__(self, l, o, r):
-            self.l = l
-            self.o = o
-            self.r = r
-        def __repr__(self) -> str:
-            return f'[ {self.l} {self.o} {self.r} ]'
-
-    class triop(node):
-        def __init__(self, o, f, s, t):
-            self.o = o
-            self.f = f
-            self.s = s
-            self.t = t
-        def __repr__(self) -> str:
-            return f'[ {self.o} {self.f} {self.s} {self.t} ]'
-
-    class setof(node):
-        def __init__(self, n):
-            self.s : list[elog_nodes.node] = [n]
-        def add(self, n):
-            self.s.append(n)
-        def __repr__(self) -> str:
-            return '{'+reduce(lambda a, b : a+b, [str(x) for x in self.s])+'}'
+import elog_nodes
 
 
 class elog_parser:
@@ -62,7 +21,7 @@ class elog_parser:
 
     def p_csv(self) -> elog_nodes.node:
 
-        l = elog_nodes.setof(self.p_val())
+        l = elog_nodes.setof('CSV', self.p_val())
         
         while True:
 
@@ -77,7 +36,7 @@ class elog_parser:
 
     def p_matl(self) -> elog_nodes.node:
 
-        l = elog_nodes.setof(self.p_val())
+        l = elog_nodes.setof('MATL', self.p_val())
         
         while True:
 
@@ -90,7 +49,7 @@ class elog_parser:
     
     def p_mat(self) -> elog_nodes.node:
 
-        l = elog_nodes.setof(self.p_matl())
+        l = elog_nodes.setof('MAT', self.p_matl())
         
         while True:
 
@@ -105,7 +64,7 @@ class elog_parser:
 
     def p_set(self) -> elog_nodes.node:
 
-        l = elog_nodes.setof(self.p_val())
+        l = elog_nodes.setof('SET', self.p_val())
         
         while True:
 

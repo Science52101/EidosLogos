@@ -34,7 +34,7 @@ f(Matrix) = [2  4  6 ,
 Point := class { variable x, y; z := 2*x + y }.
 
 somep := Point { 3, 5 }.
-somep = Point { y := 5, x := 3 } istrue.
+somep = Point { y := 5; x := 3 } istrue.
 
 somep_z = 11 istrue.
 

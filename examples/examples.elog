@@ -11,7 +11,7 @@ let `Is v zero?` in Booleans. [~ `Is v zero?` is a boolean ~]
                 else false.    [~ `Is v zero is false if v /= 0` ~]
 
 
-v := [~ Put some value in v ~].
+v := 2 [~ Put some value in v ~].
 
 let w in Integers. [~ w is an integer ~]
 
