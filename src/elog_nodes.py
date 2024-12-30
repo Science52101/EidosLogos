@@ -1,4 +1,6 @@
-class node: pass
+class node:
+    def __init__(self) -> None: pass
+    def __repr__(self) -> str: pass
 
 class val(node):
     def __init__(self, t, v):

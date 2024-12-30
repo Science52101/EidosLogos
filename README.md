@@ -37,6 +37,8 @@ Any contribuitions or suggestions from unknown/anonymous people aren't accepted 
 
 If the project branches out into different distribuitions, the community will be able to participate in the project's aim and directly in specific distribuitions.
 
+Check more about it: <https://science52101.github.io/details/projects/elog.html>
+
 <br><br>
 
 <h2 align="center">Design preview</h3>
