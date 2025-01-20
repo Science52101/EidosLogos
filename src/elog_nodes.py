@@ -40,6 +40,6 @@ class setof(node):
     def add(self, n):
         self.s.append(n)
     def __repr__(self) -> str:
-        return d'{ {self.t} : '+reduce(lambda a, b : a+' '+b, [str(x) for x in self.s])+' }'
+        return '{'+f' {self.t} : '+reduce(lambda a, b : a+' '+b, [str(x) for x in self.s])+' }'
 
 

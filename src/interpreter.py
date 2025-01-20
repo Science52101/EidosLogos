@@ -1,9 +1,6 @@
 import elog_nodes, elog_els
 
-from interpreter import unops, binops, triops, vals, sets
-
-
-class elog_interpreter:
+class elog_interpreter(object):
 
   def __init__(self, nodes : list[elog_nodes.node]) -> None:
     
@@ -21,7 +18,7 @@ class elog_interpreter:
 
   def getval(self, e : elog_els.el) -> elog_els.val:
     
-    if isinstance(e, elog.els.id): e = self.vals[e.idx]
+    if isinstance(e, elog_els.id): e = self.vls[e.idx]
 
     if isinstance(e, elog_els.val): return e
     else: self.gowrong('Value can not be fetched. / Value does not have a value.')
@@ -30,7 +27,7 @@ class elog_interpreter:
   def itp_uop(self, n : elog_nodes.unop) -> elog_els.el:
 
     if n.o == 'RETURN':
-        print(self.getval(self.itp_node()))
+        print(self.getval(self.itp_node(n.v)))
 
     else: self.gowrong('Uninterpretable binary operation.')
 
@@ -38,10 +35,11 @@ class elog_interpreter:
   def itp_bop(self, n : elog_nodes.binop) -> elog_els.el:
 
     if n.o == 'LETIN':
-      if isinstance(n.l, n.elog_nodes.val) and n.l.t == 'ID':
-        self.idc[-1][n.l.v] = self.idc.get(n.l.v, 0) + 1
-        self.vls.append(self.getval(self.itp_node(n.r)))
-        self.ids[n.l.v].append(elog_els.id(n.l.v, len(vls) - 1, n.r, lambda : True))
+      if isinstance(n.l, elog_nodes.val) and n.l.t == 'ID':
+        self.idc[-1][n.l.v] = self.idc[-1].get(n.l.v, 0) + 1
+        self.vls.append(elog_els.val('UNDEFINED', 0))
+        if n.l.v not in self.ids.keys(): self.ids[n.l.v] = list()
+        self.ids[n.l.v].append(elog_els.id(n.l.v, len(self.vls) - 1, n.r, lambda : True))
 
       else: self.gowrong('Let left operand is not an ID.')
 
@@ -67,13 +65,13 @@ class elog_interpreter:
 
       if n.t == 'NUM':
         r.t = 'num:integer'
-        r.v = int(n.t)
+        r.v = int(n.v)
       elif n.t == 'FNUM':
         v.t = 'num:floating'
-        v.v = float(n.t)
+        v.v = float(n.v)
       elif n.t == 'TEXT':
         v.t = 'text:string'
-        v.v = str(n.t)
+        v.v = str(n.v)
       else: self.gowrong('Uninterpretable value type.')
 
     return r
@@ -85,7 +83,6 @@ class elog_interpreter:
     elif isinstance(n, elog_nodes.binop): return self.itp_bop(n)
     elif isinstance(n, elog_nodes.triop): return self.itp_top(n)
     elif isinstance(n, elog_nodes.setof): return self.itp_set(n)
-    elif isinstance(n, elog_nodes.id): return self.itp_val(n)
     elif isinstance(n, elog_nodes.val): return self.itp_val(n)
     else: self.gowrong('Uninterpretable node type.')
 
@@ -94,7 +91,7 @@ class elog_interpreter:
 
     self.idc.append(dict())
 
-    for l in nodes:
+    for l in self.nodes:
         self.itp_node(l)
         self.lns += 1
 

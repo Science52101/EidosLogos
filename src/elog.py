@@ -1,6 +1,7 @@
 import sys
 from parser import *
 from tokenizer import *
+from interpreter import *
 
 
 class eidoslogos(object):
@@ -9,6 +10,7 @@ class eidoslogos(object):
         
         self.tkn : elog_tokenizer
         self.par : elog_parser
+        self.itr : elog_interpreter
    
 
     def main(self, argv : list[str]) -> None:
@@ -66,9 +68,19 @@ class eidoslogos(object):
                 print( reduce(lambda a, b : f'{a}\n{b}', nodes) )
 
 
-            elif argv[idx] == 'fulldebug':
+            elif argv[idx] == 'init_interpreter':
 
-                argv += ['init_tokenizer', 'tokenize', 'print_tokens', 'init_parser', 'parse', 'print_nodes']
+                self.itr = elog_interpreter(nodes)
+
+
+            elif argv[idx] == 'interpret':
+
+                nodes = self.itr.itp_all()
+
+
+            elif argv[idx] == 'run':
+
+                argv += ['init_tokenizer', 'tokenize', 'print_tokens', 'init_parser', 'parse', 'print_nodes', 'init_interpreter', 'interpret']
 
 
             idx += 1
