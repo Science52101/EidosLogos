@@ -237,13 +237,11 @@ class elog_parser:
     def p_stc(self) -> elog_nodes.node:
 
         if self.tkns[self.idx][0] == 'LBD':
-
             self.idx += 1
 
             l = self.p_val()
 
             if self.tkns[self.idx][0] != 'DDOT': self.gowrong()
-
             self.idx += 1
 
             l = elog_nodes.binop(l, 'LBD', self.p_stc())
@@ -256,18 +254,15 @@ class elog_parser:
             while True:
 
                 if self.tkns[self.idx][0] == 'IF':
-                    
                     self.idx += 1
                     
                     s = self.p_expr0()
 
                     if self.tkns[self.idx][0] != 'COMMA': self.gowrong()
-
                     self.idx += 1
 
 
                     if self.tkns[self.idx][0] == 'ELSE':
-
                         self.idx += 1
 
                         l = elog_nodes.triop('IF', l, s, self.p_expr0())
@@ -324,8 +319,7 @@ class elog_parser:
             else: l = elog_nodes.unop('RETURN', l)
 
 
-        if self.tkns[self.idx][0] == 'WITH': 
-
+        if self.tkns[self.idx][0] == 'WITH':
             self.idx += 1
 
             l = elog_nodes.binop(l, 'WITH', self.p_stc())

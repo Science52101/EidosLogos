@@ -1,3 +1,0 @@
-import elog_nodes, elog_els
-
-...
