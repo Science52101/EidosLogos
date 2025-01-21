@@ -18,7 +18,9 @@ class elog_interpreter(object):
 
   def getval(self, e : elog_els.el) -> elog_els.val:
     
-    if isinstance(e, elog_els.id): e = self.vls[e.idx]
+    if isinstance(e, elog_els.id):
+      if e.idx in self.ids.keys(): e = self.vls[e.idx]
+      else: self.gowrong('Index is not defined.')
 
     if isinstance(e, elog_els.val): return e
     else: self.gowrong('Value can not be fetched. / Value does not have a value.')
@@ -37,11 +39,42 @@ class elog_interpreter(object):
     if n.o == 'LETIN':
       if isinstance(n.l, elog_nodes.val) and n.l.t == 'ID':
         self.idc[-1][n.l.v] = self.idc[-1].get(n.l.v, 0) + 1
-        self.vls.append(elog_els.val('UNDEFINED', 0))
+        self.vls.append(elog_els.val('err:UNSETTED', 0))
         if n.l.v not in self.ids.keys(): self.ids[n.l.v] = list()
-        self.ids[n.l.v].append(elog_els.id(n.l.v, len(self.vls) - 1, n.r, lambda : True))
+        self.ids[n.l.v].append(elog_els.id(n.l.v, len(self.vls) - 1, n.r, True))
 
-      else: self.gowrong('Let left operand is not an ID.')
+      else: self.gowrong('Let left operand is not a tokenized ID.')
+
+    elif n.o == 'DEF':
+      l = self.itp_node(n.l)
+      if isinstance(l, elog_els.id):
+        r = self.itp_node(n.r)
+        self.vls[l.idx].t = r.t
+        self.vls[l.idx].v = r.v
+
+        return elog_els.val('err:NULL', 0)
+
+      else: self.gowrong('Setting left operand is not an ID.')
+
+    elif n.o == 'ADD':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == 'num' and r.t.split(':')[0] == 'num':
+        l.v += r.v
+        if r.t.split(':')[1] == 'floating': l.t = r.t
+        return l
+
+      else: self.gowrong('Addition operand(s) is/are not (a) number(s).')
+
+    elif n.o == 'MUL':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == 'num' and r.t.split(':')[0] == 'num':
+        l.v *= r.v
+        if r.t.split(':')[1] == 'floating': l.t = r.t
+        return l
+
+      else: self.gowrong('Multiplication operand(s) is/are not (a) number(s).')
 
     else: self.gowrong('Uninterpretable binary operation.')
 
@@ -67,11 +100,11 @@ class elog_interpreter(object):
         r.t = 'num:integer'
         r.v = int(n.v)
       elif n.t == 'FNUM':
-        v.t = 'num:floating'
-        v.v = float(n.v)
+        r.t = 'num:floating'
+        r.v = float(n.v)
       elif n.t == 'TEXT':
-        v.t = 'text:string'
-        v.v = str(n.v)
+        r.t = 'text:string'
+        r.v = str(n.v)
       else: self.gowrong('Uninterpretable value type.')
 
     return r

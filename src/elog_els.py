@@ -17,5 +17,4 @@ class id(el):
         self.c = c
     def __repr__(self) -> str:
         return f'[{self.idf} : {self.t}]: {self.idx} - {self.c}'
-
-
+        

@@ -1,3 +1,6 @@
-let x in 5.
-let x in 3.
-x
+let x in xxx.
+let x as 2.
+
+x := 2.
+
+let `This is a label!` in .
