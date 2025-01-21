@@ -1,6 +1,13 @@
-let x in xxx.
-let x as 2.
+let b in xxx.
 
-x := 2.
+b := 2.
 
-let `This is a label!` in .
+b.
+
+b := block :: {
+	let x in xxx.
+	x := 2.
+	x.
+}.
+
+interpret b.

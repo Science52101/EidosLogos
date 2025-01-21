@@ -10,7 +10,7 @@ class elog_parser:
         self.r : list[elog_nodes.node] = list()
         self.tkns : list[tuple[str, str]] = tkns
         self.idx : int = 0
-        self.lns : int = 0
+        self.lns : int = 1
 
     
     def gowrong(self, error : str = 'unknown') -> None:
@@ -92,13 +92,11 @@ class elog_parser:
 
 
         elif self.tkns[self.idx][0] == 'CBB':
-
             self.idx += 1
 
             l = self.p_set()
 
             if self.tkns[self.idx][0] != 'CBE': self.gowrong("Expected end of braces (}).")
-
             self.idx += 1
 
             return l
@@ -116,14 +114,31 @@ class elog_parser:
 
             return l
 
-        
-        elif self.tkns[self.idx][0] == 'REF':
+
+        elif self.tkns[self.idx][0] in ['REF', 'ITP']:
+            self.idx += 1
+
+            l = elog_nodes.unop(self.tkns[self.idx-1][0], self.p_val())
+            self.idx += 1
+            
+            return l
+
+
+        elif self.tkns[self.idx][0] == 'BLOCK':
 
             self.idx += 1
 
-            l = elog_nodes.unop('REF', self.p_val())
+            if not(self.tkns[self.idx][0] == 'QDOT' and self.tkns[self.idx+1][0] == 'CBB'):
+                self.gowrong("Expected start of block (quad-dot (::) and beginning braces ({).")
+            self.idx += 2
 
+            l = elog_nodes.setof('BLOCK', [])
+
+            self.parse(end = 'CBE', cln = False, addf = l.add)
+
+            if self.tkns[self.idx][0] != 'CBE': self.gowrong("Expected end of braces (}).")
             self.idx += 1
+
             
             return l
 
@@ -131,12 +146,10 @@ class elog_parser:
         elif self.tkns[self.idx][0] in ['NUM', 'FNUM', 'TEXT', 'ID']:
 
             v = elog_nodes.val(self.tkns[self.idx][0], self.tkns[self.idx][1])
-
             self.idx += 1
 
 
             if self.tkns[self.idx][0] == 'UNDERL':
-
                 self.idx += 1
 
                 v = elog_nodes.binop(v, 'SSCR', self.p_csv())
@@ -146,17 +159,14 @@ class elog_parser:
                 while True:
 
                     if self.tkns[self.idx][0] == 'PBB':
-
                         self.idx += 1
 
                         l = self.p_val()
 
                         if self.tkns[self.idx][0] != 'PBE': self.gowrong("Expected end of parenthesis.")
-
                         self.idx += 1
 
                         v = elog_nodes.binop(v, 'FUNC', l)
-
 
                     else: return v
 
@@ -164,31 +174,50 @@ class elog_parser:
         elif self.tkns[self.idx][0] in ['TRUE', 'FALSE']:
 
             l = elog_nodes.val('BOOL', self.tkns[self.idx][0])
-
             self.idx += 1
 
             return l
+
+
+        elif self.tkns[self.idx][0] in ['SUB', 'NOT']:
+            self.idx += 1
+
+            return elog_nodes.unop(self.tkns[self.idx-1][0], self.p_val())
+
+
+        elif self.tkns[self.idx][0] == 'ADD':
+            self.idx += 1
+
+            return self.p_val()
         
 
         else: self.gowrong("Could not parse value. / Expected value.")
 
    
+    def p_pows(self) -> elog_nodes.node:
+        l = self.p_val()
+
+        while True:
+
+            if self.tkns[self.idx][0] == 'POW':
+                self.idx += 1
+
+                l = elog_nodes.binop(l, self.tkns[self.idx-1][0], self.p_val())
+
+            else: break
+
+        return l
+
+
     def p_fact(self) -> elog_nodes.node:
-
-        if self.tkns[self.idx][0] in ['SUB', 'NOT']:
-            self.idx += 1
-
-            l = elog_nodes.binop(self.p_val(), self.tkns[self.idx-1][0], self.p_fact())
-
-        else: l = self.p_val()
-
+        l = self.p_pows()
 
         while True:
 
             if self.tkns[self.idx][0] in ['MUL', 'DIV', 'MOD']:
                 self.idx += 1
 
-                l = elog_nodes.binop(l, self.tkns[self.idx-1][0], self.p_val())
+                l = elog_nodes.binop(l, self.tkns[self.idx-1][0], self.p_pows())
 
             else: break
 
@@ -303,13 +332,16 @@ class elog_parser:
 
         return l
 
-    def parse(self, end : str = 'EOSCR', cln : bool = True) -> list[elog_nodes.node]:
+
+    def parse(self, end : str = 'EOSCR', cln : bool = True, addf : callable = None) -> list[elog_nodes.node]:
+        if not addf: addf = self.r.append
+
         while self.idx < len(self.tkns):
             if self.tkns[self.idx][0] == end: break
             elif cln: self.lns += 1
 
             l = self.parsel()
-            self.r.append(l)
+            addf(l)
 
             if self.tkns[self.idx][0] in ['PERIOD', end]: self.idx += 1
             else: self.gowrong('Expected an end of line.')

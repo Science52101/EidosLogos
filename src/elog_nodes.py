@@ -1,3 +1,5 @@
+from functools import reduce
+
 class node:
     def __init__(self) -> None: pass
     def __repr__(self) -> str: pass
@@ -35,11 +37,12 @@ class triop(node):
 
 class setof(node):
     def __init__(self, t, n):
-        self.s : list[elog_nodes.node] = [n]
+        if isinstance(n, list): self.s = n
+        else: self.s = [n]
         self.t = t
     def add(self, n):
         self.s.append(n)
     def __repr__(self) -> str:
-        return '{'+f' {self.t} : '+reduce(lambda a, b : a+' '+b, [str(x) for x in self.s])+' }'
+        return '{'+f' {self.t} : '+str(self.s)[1:-1]+' }'
 
 
