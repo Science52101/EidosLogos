@@ -1,13 +1,19 @@
-let b in xxx.
-
-b := 2.
-
-b.
+let b in blocks.
 
 b := block :: {
-	let x in xxx.
-	x := 2.
-	x.
+	x * 3.
 }.
 
-interpret b.
+let x in numbers.
+
+x := 4.
+
+(interpret b)_1.
+
+x := 7.
+
+(interpret b)_1.
+
+x := 2.
+
+(interpret b)_1.

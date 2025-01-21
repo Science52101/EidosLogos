@@ -20,8 +20,11 @@ class elog_interpreter(object):
   def getval(self, e : elog_els.el) -> elog_els.val:
     
     if isinstance(e, elog_els.id):
-      if e.idx < len(self.vls): e = self.vls[e.idx]
-      else: self.gowrong('Index of ID is not existant yet.')
+      if isinstance(e, elog_els.id2i):
+        e = e.get()
+      else:
+        if e.idx < len(self.vls): e = self.vls[e.idx]
+        else: self.gowrong('Index of ID is not existant yet.')
 
     if isinstance(e, elog_els.val): return e
     else: self.gowrong('Value can not be fetched. / Value does not have a value.')
@@ -85,7 +88,7 @@ class elog_interpreter(object):
         self.vls.append(elog_els.val('err:UNSETTED', 0))
 
         if n.l.v not in self.ids.keys(): self.ids[n.l.v] = list()
-        self.ids[n.l.v].append(elog_els.id(n.l.v, len(self.vls) - 1, n.r, True))
+        self.ids[n.l.v].append(elog_els.id(n.l.v, len(self.vls) - 1, n.r)) ##############################
 
       else: self.gowrong(f'Let left operand is not a tokenized ID. Left operand token: {n.l}')
 
@@ -138,7 +141,15 @@ class elog_interpreter(object):
         if r.t.split(':')[1] == 'floating': l.t = r.t
         return l
 
-      else: self.gowrong(f'Multiplication operand(s) is/are not (a) number(s). Operands: {l}, {r}')
+    elif n.o == 'SSCR':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t == 'collection:vector':
+        if r.t == 'num:integer' and r.v != 0 and r.v <= len(l.v):
+          return elog_els.id2i('vector_el', r.v - (1 if r.v > 0 else 0), l.v[0].t, l.v)
+
+        else: self.gowrong(f'Subscript right operand is not a count (integer number different to 0) in range. Operand: {l}')
+      else: self.gowrong(f'Subscript left operand is not of a valid types. Operand: {l}')
 
     else: self.gowrong(f'Uninterpretable binary operation. Operation: {n.o}')
 

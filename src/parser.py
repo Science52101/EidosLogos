@@ -20,7 +20,7 @@ class elog_parser:
 
     def p_csv(self) -> elog_nodes.node:
 
-        l = elog_nodes.setof('CSV', self.p_val())
+        l = elog_nodes.setof('CSV', self.p_pval())
         
         while True:
 
@@ -35,7 +35,7 @@ class elog_parser:
 
     def p_matl(self) -> elog_nodes.node:
 
-        l = elog_nodes.setof('MATL', self.p_val())
+        l = elog_nodes.setof('MATL', self.p_pval())
         
         while True:
 
@@ -43,7 +43,7 @@ class elog_parser:
 
             self.idx += 1
 
-            l.add(self.p_val())
+            l.add(self.p_pval())
  
     
     def p_mat(self) -> elog_nodes.node:
@@ -63,7 +63,7 @@ class elog_parser:
 
     def p_set(self) -> elog_nodes.node:
 
-        l = elog_nodes.setof('SET', self.p_val())
+        l = elog_nodes.setof('SET', self.p_pval())
         
         while True:
 
@@ -79,13 +79,11 @@ class elog_parser:
     def p_val(self) -> elog_nodes.node:
 
         if self.tkns[self.idx][0] == 'PBB':
-
             self.idx += 1
 
             l = self.p_stc()
 
             if self.tkns[self.idx][0] != 'PBE': self.gowrong("Expected end of parenthesis ()).")
-
             self.idx += 1
 
             return l
@@ -118,10 +116,7 @@ class elog_parser:
         elif self.tkns[self.idx][0] in ['REF', 'ITP']:
             self.idx += 1
 
-            l = elog_nodes.unop(self.tkns[self.idx-1][0], self.p_val())
-            self.idx += 1
-            
-            return l
+            return elog_nodes.unop(self.tkns[self.idx-1][0], self.p_pval())
 
 
         elif self.tkns[self.idx][0] == 'BLOCK':
@@ -148,27 +143,7 @@ class elog_parser:
             v = elog_nodes.val(self.tkns[self.idx][0], self.tkns[self.idx][1])
             self.idx += 1
 
-
-            if self.tkns[self.idx][0] == 'UNDERL':
-                self.idx += 1
-
-                v = elog_nodes.binop(v, 'SSCR', self.p_csv())
-
-            else:
-
-                while True:
-
-                    if self.tkns[self.idx][0] == 'PBB':
-                        self.idx += 1
-
-                        l = self.p_val()
-
-                        if self.tkns[self.idx][0] != 'PBE': self.gowrong("Expected end of parenthesis.")
-                        self.idx += 1
-
-                        v = elog_nodes.binop(v, 'FUNC', l)
-
-                    else: return v
+            return v
 
 
         elif self.tkns[self.idx][0] in ['TRUE', 'FALSE']:
@@ -182,27 +157,53 @@ class elog_parser:
         elif self.tkns[self.idx][0] in ['SUB', 'NOT']:
             self.idx += 1
 
-            return elog_nodes.unop(self.tkns[self.idx-1][0], self.p_val())
+            return elog_nodes.unop(self.tkns[self.idx-1][0], self.p_pval())
 
 
         elif self.tkns[self.idx][0] == 'ADD':
             self.idx += 1
 
-            return self.p_val()
+            return self.p_pval()
         
 
         else: self.gowrong("Could not parse value. / Expected value.")
 
+
+    def p_pval(self) -> elog_nodes.node:
+
+        v = self.p_val()
+
+        while True:
+
+            if self.tkns[self.idx][0] == 'UNDERL':
+                self.idx += 1
+
+                v = elog_nodes.binop(v, 'SSCR', self.p_val())
+
+            elif self.tkns[self.idx][0] == 'PBB':
+                self.idx += 1
+
+                r = self.p_val()
+
+                if self.tkns[self.idx][0] != 'PBE': self.gowrong("Expected end of parenthesis.")
+                self.idx += 1
+
+                return elog_nodes.binop(v, 'FUNC', r)
+
+            else: break
+
+        return v
    
+
     def p_pows(self) -> elog_nodes.node:
-        l = self.p_val()
+        l = self.p_pval()
 
         while True:
 
             if self.tkns[self.idx][0] == 'POW':
                 self.idx += 1
 
-                l = elog_nodes.binop(l, self.tkns[self.idx-1][0], self.p_val())
+                l = elog_nodes.binop(l, self.tkns[self.idx-1][0], self.p_pval())
 
             else: break
 
@@ -259,7 +260,7 @@ class elog_parser:
         if self.tkns[self.idx][0] == 'LBD':
             self.idx += 1
 
-            l = self.p_val()
+            l = self.p_pval()
 
             if self.tkns[self.idx][0] != 'DDOT': self.gowrong('Expected a double dot (:).')
             self.idx += 1
@@ -299,7 +300,7 @@ class elog_parser:
         if self.tkns[self.idx][0] == 'LET':
             self.idx += 1
 
-            l = self.p_val()
+            l = self.p_pval()
 
             
             if self.tkns[self.idx][0] == 'IN':
