@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import elog_nodes, elog_els
 
 class elog_interpreter(object):
@@ -36,7 +38,7 @@ class elog_interpreter(object):
       l = elog_els.val('err:NULL', 0)
       r = self.getval(self.itp_node(n.v))
       l.t = r.t
-      l.v = r.v ##########################################################################################################################################################
+      l.v = deepcopy(r.v)
       self.rls[-1].append(l)
 
     elif n.o == 'ADD':
@@ -54,6 +56,13 @@ class elog_interpreter(object):
 
       else: self.gowrong(f'Unary subtraction operand is not a number. Operand: {l}')
 
+    elif n.o == 'REF':
+      l = self.itp_node(n.v)
+      if isinstance(l, elog_els.id):
+        return elog_els.val('link:reference', (l.t, l.idx))
+
+      else: self.gowrong(f'Reference operand is not an ID. Operand: {l}')
+
     elif n.o == 'ITP':
       l = self.getval(self.itp_node(n.v))
 
@@ -66,7 +75,7 @@ class elog_interpreter(object):
         for idck, idcv in self.idc[-1].items():
           for i in range(idcv): self.ids[idck].pop()
 
-        l = elog_els.val('collection:vector', self.rls[-1])
+        l = elog_els.val('collection:vector:any', self.rls[-1])
 
         self.idc.pop()
         self.rls.pop()
@@ -82,23 +91,45 @@ class elog_interpreter(object):
 
   def itp_bop(self, n : elog_nodes.binop) -> elog_els.el:
 
-    if n.o == 'LETIN':
+    if n.o == 'LETAS':
       if isinstance(n.l, elog_nodes.val) and n.l.t == 'ID':
         self.idc[-1][n.l.v] = self.idc[-1].get(n.l.v, 0) + 1
         self.vls.append(elog_els.val('err:UNSETTED', 0))
 
         if n.l.v not in self.ids.keys(): self.ids[n.l.v] = list()
-        self.ids[n.l.v].append(elog_els.id(n.l.v, len(self.vls) - 1, n.r)) ##############################
+        self.ids[n.l.v].append(elog_els.id(n.l.v, len(self.vls) - 1, n.r.v))
 
       else: self.gowrong(f'Let left operand is not a tokenized ID. Left operand token: {n.l}')
 
     elif n.o == 'DEF':
       l = self.itp_node(n.l)
-      if isinstance(l, elog_els.id):
+      
+      if isinstance(l, elog_els.v_function):
+        ...
+
+      elif isinstance(l, elog_els.id):
         r = self.getval(self.itp_node(n.r))
-        if l.idx < len(self.vls):
+
+        ltmp = l.t.split(':')
+        rtmp = r.t.split(':')
+        for i in range(len(ltmp)):
+          if i < len(rtmp):
+            if ltmp[i] != rtmp[i] and ltmp[i] != 'any' and rtmp[i] != 'any':
+              self.gowrong(f'Setting value is not of the ID type. ID type: {l.t}; value type: {r.t}')
+
+        if isinstance(l, elog_els.id2i):
+          l.get().t = r.t
+          l.get().v = deepcopy(r.v)
+
+        elif r.t == 'link:reference':
+          l.t = r.v[0]
+          l.idx = r.v[1]
+
+        elif l.idx < len(self.vls):
+
           self.vls[l.idx].t = r.t
-          self.vls[l.idx].v = r.v ##########################################################################################################################################################
+          self.vls[l.idx].v = deepcopy(r.v)
+
         else: self.gowrong('Index of the setting ID is not existant yet.')
 
         return elog_els.val('err:NULL', 0)
@@ -144,9 +175,12 @@ class elog_interpreter(object):
     elif n.o == 'SSCR':
       l = self.getval(self.itp_node(n.l))
       r = self.getval(self.itp_node(n.r))
-      if l.t == 'collection:vector':
-        if r.t == 'num:integer' and r.v != 0 and r.v <= len(l.v):
-          return elog_els.id2i('vector_el', r.v - (1 if r.v > 0 else 0), l.v[0].t, l.v)
+
+      lt = l.t.split(':')
+      if lt[0] == 'collection':
+        if lt[1] == 'vector':
+          if r.t == 'num:integer' and r.v != 0 and r.v <= len(l.v):
+            return elog_els.id2i(l.t[len(lt[0]) + len(lt[0]):], r.v - (1 if r.v > 0 else 0), l.v[0].t, l.v)
 
         else: self.gowrong(f'Subscript right operand is not a count (integer number different to 0) in range. Operand: {l}')
       else: self.gowrong(f'Subscript left operand is not of a valid types. Operand: {l}')
@@ -181,7 +215,7 @@ class elog_interpreter(object):
         r.v = float(n.v)
       elif n.t == 'TEXT':
         r.t = 'text:string'
-        r.v = str(n.v)[1:-1]
+        r.v = str(n.v)
       else: self.gowrong('Uninterpretable value type.')
 
     return r
@@ -197,7 +231,7 @@ class elog_interpreter(object):
     else: self.gowrong('Uninterpretable node type.')
 
 
-  def itp_lines(self, nl : list[elog_nodes.node], cln : bool = False) -> elog_els.el:
+  def itp_lines(self, nl : list[elog_nodes.node], cln : bool = True) -> elog_els.el:
 
     for l in nl:
         self.itp_node(l)

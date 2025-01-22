@@ -30,7 +30,7 @@ class id2i(id):
     def get(self):
         return self.l[self.idx]
 
-class v_function(el):
+class v_function(val):
     def __init__(self, i : list[str], n : elog_nodes.node):
         self.i = i
         self.n = n

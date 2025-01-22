@@ -140,7 +140,10 @@ class elog_parser:
 
         elif self.tkns[self.idx][0] in ['NUM', 'FNUM', 'TEXT', 'ID']:
 
-            v = elog_nodes.val(self.tkns[self.idx][0], self.tkns[self.idx][1])
+            if self.tkns[self.idx][0] == 'TEXT' or (self.tkns[self.idx][0] == 'ID' and self.tkns[self.idx][1][0] == '`'):
+                v = elog_nodes.val(self.tkns[self.idx][0], self.tkns[self.idx][1][1:-1])
+            else:
+                v = elog_nodes.val(self.tkns[self.idx][0], self.tkns[self.idx][1])
             self.idx += 1
 
             return v
