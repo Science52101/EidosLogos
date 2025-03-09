@@ -1,10 +1,10 @@
 import sys
 import traceback
 
+from elog_params import *
 from parser import *
 from tokenizer import *
 from interpreter import *
-
 
 class eidoslogos(object):
 
@@ -35,7 +35,13 @@ class eidoslogos(object):
 
             while idx < len(argv):
 
-                if argv[idx] == 'open':
+                if argv[idx] == 'no-latin':
+
+                    print("\n\n\nE_LOG --- REMOVING LATIN\n\n\n")
+
+                    elog_params.latin = false
+
+                elif argv[idx] == 'open':
 
                     idx += 1
 

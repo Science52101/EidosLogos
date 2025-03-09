@@ -1,8 +1,69 @@
+from elog_params import *
 import re
 
 class elog_tokenizer:
 
     def __init__(self) -> None:
+        self.TOKENPL : list[tuple[str, str]] = [
+            ('CMT',    r'\(~(\\.|[^~\\])+~\)'),
+            ('ID',     r'`(\\.|[^`\\])*`'),
+            ('TEXT',   r'\'(\\.|[^\'\\])*\''),
+            ('LET',    r'\bdef\b'),
+            ('IN',     r'\bin\b'),
+            ('AS',     r'\but\b'),
+            ('WITH',   r'\bcum\b'),
+            ('IF',     r'\bsi\b'),
+            ('ELSE',   r'\baliter\b'),
+            ('FORALL', r'\bomni\b'),
+            ('FORSOM', r'\baliqui\b'),
+            ('ISTRUE', r'\bassere\b'),
+            ('LBD',    r'\blbd\b'),
+            ('REF',    r'\bref\b'),
+            ('TRUE',   r'\bverum\b'),
+            ('FALSE',  r'\bfalsum\b'),
+            ('AND',    r'\bet\b'),
+            ('OR',     r'\bvel\b'),
+            ('XOR',    r'\baut\b'),
+            ('EQ',     r'\baeq\b'),
+            ('NOT',    r'\bnon\b'),
+            ('MOD',    r'\bmod\b'),
+            ('INPUT',  r'\baccipio\b'),
+            ('BLOCK',  r'\bmoles\b'),
+            ('ITP',    r'\bint\b'),
+            ('ID',     r'[a-zA-Z][a-zA-Z0-9]*'),
+            ('FNUM',   r'\d*\.\d+'),
+            ('NUM',    r'\d+'),
+            ('PERIOD', r'\.'),
+            ('COMMA',  r','),
+            ('DCOMMA', r';'),
+            ('UNDERL', r'_'),
+            ('Label',  r'"[a-zA-Z][a-zA-Z0-9]*'),
+            ('PBB',    r'\('),
+            ('PBE',    r'\)'),
+            ('SBB',    r'\['),
+            ('SBE',    r'\]'),
+            ('CBB',    r'\{'),
+            ('CBE',    r'\}'),
+            ('DEF',    r':='),
+            ('NEQ',    r'/='),
+            ('GRTEQ',  r'>='),
+            ('LSSEQ',  r'<='),
+            ('EQ',     r'='),
+            ('GRT',    r'>'),
+            ('LSS',    r'<'),
+            ('QDOT',   r'::'),
+            ('DDOT',   r':'),
+            ('ADD',    r'\+'),
+            ('SUB',    r'-'),
+            ('MUL',    r'\*'),
+            ('DIV',    r'/'),
+            ('POW',    r'\^'),
+            ('INTSEC', r'&'),
+            ('UNION',  r'\|'),
+            ('MATMUL', r'@'),
+            ('WS',     r'\s+'),
+            ('MISSM',  r'.')
+        ]
 
         self.TOKENP : list[tuple[str, str]] = [
             ('CMT',    r'\(~(\\.|[^~\\])+~\)'),
@@ -16,7 +77,7 @@ class elog_tokenizer:
             ('ELSE',   r'\belse\b'),
             ('FORALL', r'\bforall\b'),
             ('FORSOM', r'\bforsome\b'),
-            ('ISTRUE', r'\bistrue\b'),
+            ('ISTRUE', r'\bassert\b'),
             ('LBD',    r'\blbd\b'),
             ('REF',    r'\bref\b'),
             ('TRUE',   r'\btrue\b'),
@@ -29,7 +90,7 @@ class elog_tokenizer:
             ('MOD',    r'\bmod\b'),
             ('INPUT',  r'\binput\b'),
             ('BLOCK',  r'\bblock\b'),
-            ('ITP',     r'\bitp\b'),
+            ('ITP',    r'\bitp\b'),
             ('ID',     r'[a-zA-Z][a-zA-Z0-9]*'),
             ('FNUM',   r'\d*\.\d+'),
             ('NUM',    r'\d+'),
@@ -82,7 +143,7 @@ class elog_tokenizer:
             matched = False
             
 
-            for t, p in self.TOKENP:
+            for t, p in self.TOKENPL if elog_params.latin else self.TOKENP:
 
                 match = re.match(p, code)
 

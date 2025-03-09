@@ -1,8 +1,49 @@
 from copy import deepcopy
 
 import elog_nodes, elog_els
+from elog_params import *
 
 class elog_interpreter(object):
+
+  TYNAMES : dict[str, str] = {
+    'NUM': 'number',
+      'INT': 'integer',
+      'FLT': 'floating',
+    'TXT': 'text',
+      'STR': 'string', 
+    'BOO': 'boolean',
+    'LNK': 'link',
+      'REF': 'reference',
+    'COL': 'collection',
+      'VEC': 'vector',
+      'MTX': 'matrix',
+    'NOD': 'node',
+      'BLK': 'block',
+    'ERR': 'error',
+      'NUL': 'null',
+      'UNS': 'unsetted', 
+    'ANY': 'any'
+  }
+
+  TYNAMESL : dict[str, str] = {
+    'NUM': 'numerus',
+      'INT': 'integer',
+      'FLT': 'fluctuans',
+    'TXT': 'textus',
+      'STR': 'catenarius', 
+    'BOO': 'veritas',
+    'LNK': 'necto',
+      'REF': 'referentia',
+    'COL': 'collectio',
+      'VEC': 'vector',
+      'MTX': 'matrix',
+    'NOD': 'nodus',
+      'BLK': 'moles',
+    'ERR': 'error',
+      'NUL': 'nihil',
+      'UNS': 'indefinitus', 
+    'ANY': 'quilibet'
+  }
 
   def __init__(self, nodes : list[elog_nodes.node]) -> None:
     
@@ -12,6 +53,7 @@ class elog_interpreter(object):
     self.idc : list[dict[str, int]] = [dict()]
     self.rls : list[list[elog_els.el]] = [list()]
     self.lns = 1
+    self.TYNA : dict[str, str] = self.TYNAMESL if elog_params.latin else self.TYNAMES
 
 
   def gowrong(self, error : str = 'unknown') -> None:
@@ -35,7 +77,7 @@ class elog_interpreter(object):
   def itp_uop(self, n : elog_nodes.unop) -> elog_els.el:
 
     if n.o == 'RETURN':
-      l = elog_els.val('err:NULL', 0)
+      l = elog_els.val(f'{self.TYNA["ERR"]}:{self.TYNA["NUL"]}', 0)
       r = self.getval(self.itp_node(n.v))
       l.t = r.t
       l.v = deepcopy(r.v)
@@ -43,30 +85,39 @@ class elog_interpreter(object):
 
     elif n.o == 'ADD':
       l = self.getval(self.itp_node(n.v))
-      if l.t.split(':')[0] == 'num':
+      if l.t.split(':')[0] == self.TYNA["NUM"]:
         return l
 
       else: self.gowrong(f'Unary addition operand is not a number. Operand: {l}')
 
     elif n.o == 'SUB':
       l = self.getval(self.itp_node(n.v))
-      if l.t.split(':')[0] == 'num':
+      if l.t.split(':')[0] == self.TYNA["NUM"]:
         l.v = -l.v
         return l
 
       else: self.gowrong(f'Unary subtraction operand is not a number. Operand: {l}')
 
+    elif n.o == 'NOT':
+      l = self.getval(self.itp_node(n.v))
+      if l.t.split(':')[0] == self.TYNA["BOO"]:
+        l.v = not l.v
+        return l
+
+      else: self.gowrong(f'Negation operand is not a boolean. Operand: {l}')
+
+
     elif n.o == 'REF':
       l = self.itp_node(n.v)
       if isinstance(l, elog_els.id):
-        return elog_els.val('link:reference', (l.t, l.idx))
+        return elog_els.val(f'{self.TYNA["LNK"]}:{self.TYNA["REF"]}', (l.t, l.idx))
 
       else: self.gowrong(f'Reference operand is not an ID. Operand: {l}')
 
     elif n.o == 'ITP':
       l = self.getval(self.itp_node(n.v))
 
-      if l.t == 'node:block':
+      if l.t == f'{self.TYNA["NOD"]}:{self.TYNA["BLK"]}':
         self.idc.append(dict())
         self.rls.append(list())
 
@@ -75,7 +126,7 @@ class elog_interpreter(object):
         for idck, idcv in self.idc[-1].items():
           for i in range(idcv): self.ids[idck].pop()
 
-        l = elog_els.val('collection:vector:any', self.rls[-1])
+        l = elog_els.val(f'{self.TYNA["COL"]}:{self.TYNA["VEC"]}:{self.TYNA["ANY"]}', self.rls[-1])
 
         self.idc.pop()
         self.rls.pop()
@@ -91,21 +142,21 @@ class elog_interpreter(object):
 
   def itp_bop(self, n : elog_nodes.binop) -> elog_els.el:
 
-    if n.o == 'LETAS':
+    if n.o == 'LETIN':
       if isinstance(n.l, elog_nodes.val) and n.l.t == 'ID':
         self.idc[-1][n.l.v] = self.idc[-1].get(n.l.v, 0) + 1
-        self.vls.append(elog_els.val('err:UNSETTED', 0))
+        self.vls.append(elog_els.val(f'{self.TYNA["ERR"]}:{self.TYNA["UNS"]}', 0))
 
         if n.l.v not in self.ids.keys(): self.ids[n.l.v] = list()
         self.ids[n.l.v].append(elog_els.id(n.l.v, len(self.vls) - 1, n.r.v))
 
-      else: self.gowrong(f'Let left operand is not a tokenized ID. Left operand token: {n.l}')
+      else: self.gowrong(f'LetIn left operand is not a tokenized ID. Left operand token: {n.l}')
 
     elif n.o == 'DEF':
       l = self.itp_node(n.l)
       
       if isinstance(l, elog_els.v_function):
-        ...
+        ... # TODO
 
       elif isinstance(l, elog_els.id):
         r = self.getval(self.itp_node(n.r))
@@ -121,7 +172,7 @@ class elog_interpreter(object):
           l.get().t = r.t
           l.get().v = deepcopy(r.v)
 
-        elif r.t == 'link:reference':
+        elif r.t == f'{self.TYNA["LNK"]}:{self.TYNA["REF"]}':
           l.t = r.v[0]
           l.idx = r.v[1]
 
@@ -132,26 +183,37 @@ class elog_interpreter(object):
 
         else: self.gowrong('Index of the setting ID is not existant yet.')
 
-        return elog_els.val('err:NULL', 0)
+        return elog_els.val(f'{self.TYNA["ERR"]}:{self.TYNA["NUL"]}', 0)
 
       else: self.gowrong('Setting left operand is not an ID.')
 
     elif n.o == 'ADD':
       l = self.getval(self.itp_node(n.l))
       r = self.getval(self.itp_node(n.r))
-      if l.t.split(':')[0] == 'num' and r.t.split(':')[0] == 'num':
+      if l.t.split(':')[0] == self.TYNA["NUM"] and r.t.split(':')[0] == self.TYNA["NUM"]:
         l.v += r.v
-        if r.t.split(':')[1] == 'floating': l.t = r.t
+        if r.t.split(':')[1] == self.TYNA["FLT"]: l.t = r.t
         return l
 
       else: self.gowrong(f'Addition operand(s) is/are not (a) number(s). Operands: {l}, {r}')
 
+    elif n.o == 'SUB':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == self.TYNA["NUM"] and r.t.split(':')[0] == self.TYNA["NUM"]:
+        l.v -= r.v
+        if r.t.split(':')[1] == self.TYNA["FLT"]: l.t = r.t
+        return l
+
+      else: self.gowrong(f'Subtraction operand(s) is/are not (a) number(s). Operands: {l}, {r}')
+
+
     elif n.o == 'MUL':
       l = self.getval(self.itp_node(n.l))
       r = self.getval(self.itp_node(n.r))
-      if l.t.split(':')[0] == 'num' and r.t.split(':')[0] == 'num':
+      if l.t.split(':')[0] == self.TYNA["NUM"] and r.t.split(':')[0] == self.TYNA["NUM"]:
         l.v *= r.v
-        if r.t.split(':')[1] == 'floating': l.t = r.t
+        if r.t.split(':')[1] == self.TYNA["FLT"]: l.t = r.t
         return l
 
       else: self.gowrong(f'Multiplication operand(s) is/are not (a) number(s). Operands: {l}, {r}')
@@ -159,27 +221,113 @@ class elog_interpreter(object):
     elif n.o == 'DIV':
       l = self.getval(self.itp_node(n.l))
       r = self.getval(self.itp_node(n.r))
-      if l.t.split(':')[0] == 'num' and r.t.split(':')[0] == 'num':
+      if l.t.split(':')[0] == self.TYNA["NUM"] and r.t.split(':')[0] == self.TYNA["NUM"]:
         l.v /= float(r.v)
-        l.t = 'num:floating'
+        l.t = f'{self.TYNA["NUM"]}:{self.TYNA["FLT"]}'
         return l
+
+      else: self.gowrong(f'Division operand(s) is/are not (a) number(s). Operands: {l}, {r}')
 
     elif n.o == 'POW':
       l = self.getval(self.itp_node(n.l))
       r = self.getval(self.itp_node(n.r))
-      if l.t.split(':')[0] == 'num' and r.t.split(':')[0] == 'num':
+      if l.t.split(':')[0] == self.TYNA["NUM"] and r.t.split(':')[0] == self.TYNA["NUM"]:
         l.v **= r.v
-        if r.t.split(':')[1] == 'floating': l.t = r.t
+        if r.t.split(':')[1] == self.TYNA["FLT"]: l.t = r.t
         return l
+
+      else: self.gowrong(f'Power operand(s) is/are not (a) number(s). Operands: {l}, {r}')
+
+    elif n.o == 'AND':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == self.TYNA["BOO"] and r.t.split(':')[0] == self.TYNA["BOO"]:
+        l.v = l.v and r.v
+        return l
+
+      else: self.gowrong(f'Logical AND operand(s) is/are not (a) boolean(s). Operands: {l}, {r}')
+
+    elif n.o == 'OR':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == self.TYNA["BOO"] and r.t.split(':')[0] == self.TYNA["BOO"]:
+        l.v = l.v or r.v
+        return l
+
+      else: self.gowrong(f'Logical OR operand(s) is/are not (a) boolean(s). Operands: {l}, {r}')
+
+    elif n.o == 'XOR':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == self.TYNA["BOO"] and r.t.split(':')[0] == self.TYNA["BOO"]:
+        l.v = l.v != r.v
+        return l
+
+      else: self.gowrong(f'Logical XOR operand(s) is/are not (a) boolean(s). Operands: {l}, {r}')
+
+    elif n.o == 'EQ':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == r.t.split(':')[0]:
+        l = elog_els.val(self.TYNA["BOO"], l.v == r.v)
+        return l
+
+      else: self.gowrong(f'Equality operands are not of a single basic type. Operands: {l}, {r}')
+
+    elif n.o == 'NEQ':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == r.t.split(':')[0]:
+        l = elog_els.val(self.TYNA["BOO"], l.v != r.v)
+        return l
+
+      else: self.gowrong(f'Unequality operands are not of a single basic type. Operands: {l}, {r}')
+
+    elif n.o == 'GRT':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == r.t.split(':')[0]:
+        l = elog_els.val(self.TYNA["BOO"], l.v > r.v)
+        return l
+
+      else: self.gowrong(f'Comparision operands are not of a single basic type. Operands: {l}, {r}')
+
+    elif n.o == 'LSS':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == r.t.split(':')[0]:
+        l = elog_els.val(self.TYNA["BOO"], l.v < r.v)
+        return l
+
+      else: self.gowrong(f'Comparision operands are not of a single basic type. Operands: {l}, {r}')
+
+    elif n.o == 'GRTEQ':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == r.t.split(':')[0]:
+        l = elog_els.val(self.TYNA["BOO"], l.v >= r.v)
+        return l
+
+      else: self.gowrong(f'Comparision operands are not of a single basic type. Operands: {l}, {r}')
+
+    elif n.o == 'LSSEQ':
+      l = self.getval(self.itp_node(n.l))
+      r = self.getval(self.itp_node(n.r))
+      if l.t.split(':')[0] == r.t.split(':')[0]:
+        l = elog_els.val(self.TYNA["BOO"], l.v <= r.v)
+        return l
+
+      else: self.gowrong(f'Comparision operands are not of a single basic type. Operands: {l}, {r}')
+
 
     elif n.o == 'SSCR':
       l = self.getval(self.itp_node(n.l))
       r = self.getval(self.itp_node(n.r))
 
       lt = l.t.split(':')
-      if lt[0] == 'collection':
-        if lt[1] == 'vector':
-          if r.t == 'num:integer' and r.v != 0 and r.v <= len(l.v):
+      if lt[0] == self.TYNA["COL"]:
+        if lt[1] == self.TYNA["VEC"]:
+          if r.t == f'{self.TYNA["NUM"]}:{self.TYNA["INT"]}' and r.v != 0 and r.v <= len(l.v):
             return elog_els.id2i(l.t[len(lt[0]) + len(lt[0]):], r.v - (1 if r.v > 0 else 0), l.v[0].t, l.v)
 
         else: self.gowrong(f'Subscript right operand is not a count (integer number different to 0) in range. Operand: {l}')
@@ -190,13 +338,28 @@ class elog_interpreter(object):
 
   def itp_top(self, n : elog_nodes.triop) -> elog_els.el:
 
-    ...
+    if n.o == 'IF':
+      c = self.getval(self.itp_node(n.f))
+
+      if c.t.split(':')[0] == self.TYNA["BOO"]:
+        if c.v: return self.itp_node(n.s)
+        else: return self.itp_node(n.t)
+
+      else: self.gowrong(f'Conditional deviation condition is not a boolean. Operand: {c}')
+
+    else: self.gowrong(f'Uninterpretable ternary operation. Operation: {n.o}')
 
 
   def itp_set(self, n : elog_nodes.setof) -> elog_els.el:
 
     if n.t == 'BLOCK':
-      return elog_els.val('node:block', n.s)
+      return elog_els.val(f'{self.TYNA["NOD"]}:{self.TYNA["BLK"]}', n.s)
+
+  # elif n.t == 'MAT':
+  #    return elog_els.val(f'{self.TYNA["COL"]}:{self.TYNA["VEC"]}', n.v)
+  # TODO: REDO
+
+    else: self.gowrong(f'Uninterpretable binary operation. Operation: {n.o}')
 
 
   def itp_val(self, n : elog_nodes.val) -> elog_els.el:
@@ -208,14 +371,17 @@ class elog_interpreter(object):
       r = elog_els.val('', 0)
 
       if n.t == 'NUM':
-        r.t = 'num:integer'
+        r.t = f'{self.TYNA["NUM"]}:{self.TYNA["INT"]}'
         r.v = int(n.v)
       elif n.t == 'FNUM':
-        r.t = 'num:floating'
+        r.t = f'{self.TYNA["NUM"]}:{self.TYNA["FLT"]}'
         r.v = float(n.v)
       elif n.t == 'TEXT':
-        r.t = 'text:string'
+        r.t = f'{self.TYNA["TXT"]}:{self.TYNA["STR"]}'
         r.v = str(n.v)
+      elif n.t == 'BOOL':
+        r.t = f'{self.TYNA["BOO"]}'
+        r.v = eval(n.v)
       else: self.gowrong('Uninterpretable value type.')
 
     return r

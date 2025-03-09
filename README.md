@@ -1,5 +1,5 @@
 <h1 align="Center">
-<img src="https://raw.githubusercontent.com/Science52101/EidosLogos/refs/heads/main/ars/img/elog_logo.png" alt="ε Log" width="128" heigth="128"/><br>
+<img src="./ars/img/elog_logo.png" alt="ε Log" width="128" heigth="128"/><br>
 ε Log
 </h1>
 <h3 align="center">(Eidos Logos)</h3>
@@ -31,7 +31,7 @@
 
 <h2 align="center">About the project</h3>
 
-This is an experimental programming language test for future script making with mathematical syntax.
+This is an experimental programming language test for future script making with mathematical syntax and latin words.
 
 Any contribuitions or suggestions from unknown/anonymous people aren't accepted for this project.
 

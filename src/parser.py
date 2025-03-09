@@ -25,7 +25,6 @@ class elog_parser:
         while True:
 
             if self.tkns[self.idx][0] == 'COMMA':
-
                 self.idx += 1
 
                 l.add(self.p_expr0())
@@ -40,7 +39,6 @@ class elog_parser:
         while True:
 
             if self.tkns[self.idx][0] in ['SBE', 'COMMA']: return l
-
             self.idx += 1
 
             l.add(self.p_pval())
@@ -53,7 +51,6 @@ class elog_parser:
         while True:
 
             if self.tkns[self.idx][0] == 'COMMA':
-
                 self.idx += 1
 
                 l.add(self.p_matl())
@@ -119,13 +116,13 @@ class elog_parser:
             return elog_nodes.unop(self.tkns[self.idx-1][0], self.p_pval())
 
 
-        elif self.tkns[self.idx][0] == 'BLOCK':
+        elif self.tkns[self.idx][0] == 'QDOT':
 
             self.idx += 1
 
-            if not(self.tkns[self.idx][0] == 'QDOT' and self.tkns[self.idx+1][0] == 'CBB'):
-                self.gowrong("Expected start of block (quad-dot (::) and beginning braces ({).")
-            self.idx += 2
+            if not self.tkns[self.idx][0] == 'CBB':
+                self.gowrong("Expected beginning braces ({).")
+            self.idx += 1
 
             l = elog_nodes.setof('BLOCK', [])
 
@@ -148,13 +145,13 @@ class elog_parser:
 
             return v
 
-
         elif self.tkns[self.idx][0] in ['TRUE', 'FALSE']:
 
-            l = elog_nodes.val('BOOL', self.tkns[self.idx][0])
+            v = elog_nodes.val('BOOL', self.tkns[self.idx][0].title())
+
             self.idx += 1
 
-            return l
+            return v
 
 
         elif self.tkns[self.idx][0] in ['SUB', 'NOT']:
@@ -270,29 +267,30 @@ class elog_parser:
 
             l = elog_nodes.binop(l, 'LBD', self.p_stc())
         
-        else:
+        elif self.tkns[self.idx][0] == 'IF':
+            self.idx += 1
+
+            s = self.p_expr0()
+
+            if self.tkns[self.idx][0] != 'COMMA': self.gowrong("Expected a comma (,).")
+            self.idx += 1
+            
             l = self.p_expr0()
 
-            while True:
+            if self.tkns[self.idx][0] not in ['COMMA', 'DCOMMA']: self.gowrong("Expected a comma (,) or a semicolon (;).")
+            self.idx += 1
 
-                if self.tkns[self.idx][0] == 'IF':
-                    self.idx += 1
-                    
-                    s = self.p_expr0()
+            if self.tkns[self.idx][0] == 'ELSE':
+                self.idx += 1
 
-                    if self.tkns[self.idx][0] != 'COMMA': self.gowrong("Expected a comma (;).")
-                    self.idx += 1
+                if self.tkns[self.idx][0] == 'COMMA': self.idx += 1
 
-                    if self.tkns[self.idx][0] == 'ELSE':
-                        self.idx += 1
+                l = elog_nodes.triop('IF', s, l, self.p_expr0())
 
-                        l = elog_nodes.triop('IF', l, s, self.p_expr0())
-
-                    else:
-                        l = elog_nodes.triop('IF', l, s, self.p_stc())
-
-
-                else: break
+            else:
+                l = elog_nodes.triop('IF', s, l, self.p_stc())
+        
+        else: l = self.p_expr0()
 
         
         return l
@@ -306,7 +304,7 @@ class elog_parser:
             l = self.p_pval()
 
             
-            if self.tkns[self.idx][0] == 'IN':
+            if self.tkns[self.idx][0] == 'DDOT':
                 self.idx += 1
 
                 l = elog_nodes.binop(l, 'LETIN', self.p_stc())
@@ -315,7 +313,7 @@ class elog_parser:
             elif self.tkns[self.idx][0] == 'AS':
                 self.idx += 1
 
-                l = elog_nodes.binop(l, 'LETAS', self.p_stc())
+                l = elog_nodes.triop('LETAS', l, self.p_stc(), self.p_stc())
             
             else: self.gowrong("LET token without token after structure.")
 
