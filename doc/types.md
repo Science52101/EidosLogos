@@ -21,4 +21,4 @@ Check all the basic types (**bold**) and specifiers (_italics_):
 - **`error`**: Errors or unknown values.
     - _`nihil`_: Null values, that, by default, come with an integer value. (E.g. `x := 3` (assuming that `x` is declared) (returns `"nihil 0`, but can't be used))
     - _`indefinitus`_: Undefined values, that, by default, come with an integer value. (E.g. `(int :: { def no-value : "textus. no-value })_1`)
-- _**`quilibet`**_
+- _**`quilibet`**_: Any type or specifier for matching or deduction.
