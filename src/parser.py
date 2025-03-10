@@ -135,10 +135,12 @@ class elog_parser:
             return l
 
 
-        elif self.tkns[self.idx][0] in ['NUM', 'FNUM', 'TEXT', 'ID']:
+        elif self.tkns[self.idx][0] in ['NUM', 'FNUM', 'TEXT', 'ID', 'LABEL']:
 
             if self.tkns[self.idx][0] == 'TEXT' or (self.tkns[self.idx][0] == 'ID' and self.tkns[self.idx][1][0] == '`'):
                 v = elog_nodes.val(self.tkns[self.idx][0], self.tkns[self.idx][1][1:-1])
+            elif self.tkns[self.idx][0] == 'LABEL':
+                v = elog_nodes.val(self.tkns[self.idx][0], self.tkns[self.idx][1][1:])
             else:
                 v = elog_nodes.val(self.tkns[self.idx][0], self.tkns[self.idx][1])
             self.idx += 1
@@ -272,7 +274,7 @@ class elog_parser:
 
             s = self.p_expr0()
 
-            if self.tkns[self.idx][0] != 'COMMA': self.gowrong("Expected a comma (,).")
+            if self.tkns[self.idx][0] not in ['COMMA', 'DDOT']: self.gowrong("Expected a comma (,) or a colon (:).")
             self.idx += 1
             
             l = self.p_expr0()
@@ -283,7 +285,7 @@ class elog_parser:
             if self.tkns[self.idx][0] == 'ELSE':
                 self.idx += 1
 
-                if self.tkns[self.idx][0] == 'COMMA': self.idx += 1
+                if self.tkns[self.idx][0] in ['COMMA', 'DDOT']: self.idx += 1
 
                 l = elog_nodes.triop('IF', s, l, self.p_expr0())
 
@@ -316,6 +318,11 @@ class elog_parser:
                 l = elog_nodes.triop('LETAS', l, self.p_stc(), self.p_stc())
             
             else: self.gowrong("LET token without token after structure.")
+
+        elif self.tkns[self.idx][0] == 'ISTRUE':
+            self.idx += 1
+
+            l = elog_nodes.unop('ASSERT', self.p_stc())
 
         else:
             l = self.p_stc()

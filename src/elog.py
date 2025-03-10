@@ -66,7 +66,11 @@ class eidoslogos(object):
 
                     print("\n\n\nE_LOG --- PRINTING TOKENS\n\n\n")
 
-                    print( *map(lambda x : f'{x[0]} : {x[1]} \t', tokens) )
+                    tmp : int = 0
+
+                    for t in tokens:
+                        print(f'{tmp}tm - {t[0]} : {t[1]}')
+                        tmp += 1
 
 
                 elif argv[idx] == 'init_parser':

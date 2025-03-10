@@ -41,48 +41,6 @@ Check more about it: <https://science52101.github.io/details/projects/elog.html>
 
 <br><br>
 
-<h2 align="center">Design preview</h3>
-
-Here are some designed scripts that will work eventually:
-
-```
-let v in Integers. (~ v is an integer ~)
-
-v := 0. (~ v is now 0 ~)
-
-v := 1. (~ v is now 1 ~)
-
-
-let `Is v zero?` in Booleans. (~ `Is v zero?` is a boolean ~)
-
-`Is v zero?` := true if v = 0, (~ `Is v zero` is true if v = 0 ~)
-                else false.    (~ `Is v zero is false if v /= 0` ~)
-```
-
-```
-let v in Integers. (~ v is an integer ~)
-
-v := (~ Put some value in v ~).
-
-let w in Integers. (~ w is an integer ~)
-
-w := 0 if v < 0,
-     1 if (v >= 0) and (v < 5),
-     2 if (v >= 5) and (v < 10),
-     else 3.
-(~ w is 0 is v < 0, 1 if 0 <= v < 5, 2 if 5 <= v < 10 and 3 is v > 0 ~)
-```
-
-```
-let ispair in Functions. (~ ispair is a function ~)
-
-ispair(x) := x mod 2 = 0.
-(~ is the same as ~)
-ispair := lbd x : x mod 2 = 0.
-```
-
-<br><br>
-
 <h2 align="center">Instalation and use</h2>
 
 The instalation process is unavailable, but the software can be experimented by cloning the repository with git: 
@@ -90,9 +48,4 @@ The instalation process is unavailable, but the software can be experimented by 
 git clone https://github.com/Science52101/EidosLogos.git
 ```
 
-For interpreting some code, use the script `elog.py` at `src` like
-```
-cd <EidosLogos path>/src
-python ./elog.py open <ELog file path> run
-```
-Where `<EidosLogos path>` is the path for the repo's directory and `<ELog file path>` is the path for the file with the code to interpret.
+If you wish to use it, it is recommended to read [the documentation](./doc/begin.md).
