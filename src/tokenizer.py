@@ -11,7 +11,7 @@ class elog_tokenizer:
             ('LET',    r'\bdef\b'),
             ('IN',     r'\bin\b'),
             ('AS',     r'\but\b'),
-            ('WITH',   r'\bcum\b'),
+            ('WITH',   r'\bpro\b'),
             ('IF',     r'\bsi\b'),
             ('ELSE',   r'\baliter\b'),
             ('FORALL', r'\bomni\b'),
