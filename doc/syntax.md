@@ -54,7 +54,7 @@ Periods only serve as an indicator to start a new line when the last line ends, 
 ### Parenthesis and precedence
 
 Like periods, parenthesis (`(` & `)`) and other braces are also really important for separating content.
-For this beginning with the syntax, only the parenthesis will be explained. Other braces will be explained later.
+For these beginning the syntax concepts, only the parenthesis will be explained. Other braces will be explained later.
 
 Parenthesis change the precedence of operations.
 
@@ -73,4 +73,4 @@ Please check each level:
 
 Higher-level operations are evaluated first and affect the result of the ones of lower-level.
 
-Please note that the parenthesis are a level 9 node. It means that anything enclosed in parenthesis has to be operated first.
+Please note that the parenthesis are a level 9 node. It means that anything enclosed in parenthesis has to be operated first and its result is used for lower-level operations.
