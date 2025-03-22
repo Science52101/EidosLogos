@@ -26,7 +26,7 @@ def num : "numerus:integer.
 def lorem-ipsum : "textus
 ```
 
-The `def ut` (aka. 'LeAs', 'define ut') statement takes a tokenized ID, a type label and a storable value (that can be the result of operations, an ID or a literal).
+The `def ut` (aka. 'LetAs', 'define ut') statement takes a tokenized ID, a type label and a storable value (that can be the result of an operation, an ID or a literal).
 
 The variable will be declared with the given ID, type and value (if it matched with the given type).
 
@@ -39,7 +39,7 @@ Example: Declaring a variable of ID `num` and type `"numerus:integer` with the v
 
 ```elog
 def num ut "numerus:integer 0.
-def lorem-ipsum ut "textus 'Lorem ipsum dolor sit amet'
+def lorem-ipsum ut "textus 'Lorem ipsum dolor sit amet...'
 ```
 
 [^2]: Please note that storable values are usually annotated in the format `(~ type label ~) (~ value ~)`.
