@@ -3,29 +3,8 @@
 ε Log
 </h1>
 <h3 align="center">(Eidos Logos)</h3>
-
-<br><br>
-
-<table align="center">
-<tr>
-<td>
-
-<h2 align="center">Using:</h3>
-<p align="center">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" width="32" heigth="32"/>
-</p>
-
-</td>
-<td>
-
-<h2 align="center">Planned using:</h3>
-<p align="center">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rust/rust-original.svg" alt="Rust" width="32" heigth="32"/>
-</p>
-
-</td>
-</tr>
-</table>
+<br>
+<img alt="Python" src="https://img.shields.io/badge/Python-3776AB?logo=Python&logoColor=white"></img>
 
 <br><br>
 
