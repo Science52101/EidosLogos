@@ -4,6 +4,7 @@
 </h1>
 <h3 align="center">(Eidos Logos)</h3>
 <br>
+
 <img alt="Python" src="https://img.shields.io/badge/Python-3776AB?logo=Python&logoColor=white"></img>
 
 <br><br>
@@ -22,9 +23,15 @@ Check more about it: <https://science52101.github.io/details/projects/elog.html>
 
 <h2 align="center">Instalation and use</h2>
 
-The instalation process is unavailable, but the software can be experimented by cloning the repository with git: 
+EidosLogos can be fetched as `EidosLogos` with [`spac`](https://github.com/Science52101/spac):
+```sh
+spac fetch https://github.com/Science52101/EidosLogos.git
+spac inst EidosLogos
 ```
-git clone https://github.com/Science52101/EidosLogos.git
-```
+
+You can run it with the `elog` command.
+
+> [!NOTE]
+> Using `spac` may require special permissions for some systems.
 
 If you wish to use it, it is recommended to read [the documentation](./doc/begin.md).
